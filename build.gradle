@@ -5,7 +5,7 @@ buildscript {
             name = "Minecraft Forge"
             url = "http://files.minecraftforge.net/maven"
         }
-		 maven {
+        maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
@@ -25,22 +25,23 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 
-allprojects {
-    apply plugin: 'java'
-    apply plugin: 'forge'
-    apply plugin: 'maven'
-    group = config.group_name
-    version = config.mod_version
-	archivesBaseName = "[${config.minecraft_version}]${config.mod_id}"
+apply plugin: 'java'
+apply plugin: 'forge'
+apply plugin: 'maven'
 
-    minecraft {
+group = config.group_name
+version = config.mod_version
+archivesBaseName = "[${config.minecraft_version}]${config.mod_id}"
+
+minecraft {
     version = config.minecraft_version + "-" + config.forge_version
-	if(file('../run').exists()) {
-		runDir = "../run"
-	} else {
-		runDir = "run"
-		if (!file(runDir).exists()) file(runDir).mkdir()
-	}
+    if(file('../run').exists()) {
+        runDir = "../run"
+    } else {
+        runDir = "run"
+        if (!file(runDir).exists())
+            file(runDir).mkdir()
+    }
 }
 
 repositories {
@@ -55,37 +56,37 @@ repositories {
 }
  
 dependencies {
-	// Forcing version numbers for everything and using NO-NEI WAILA since the "transitive dependency resolution (gradle magic)" is currently borked.
-	compile "codechicken:CodeChickenCore:1.7.10-1.0.4.35:dev"
-	compile "codechicken:CodeChickenLib:1.7.10-1.1.3.127:dev"
-	compile "codechicken:NotEnoughItems:1.7.10-1.0.4.95:dev"
-	compile "mcp.mobius.waila:Waila:1.5.11-RC2-NONEI_1.7.10"
-}
+    // Forcing version numbers for everything and using NO-NEI WAILA since the "transitive dependency resolution (gradle magic)" is currently borked.
+    compile "codechicken:CodeChickenCore:1.7.10-1.0.7.47:dev"
+    //compile "codechicken:CodeChickenLib:1.7.10-1.1.3.127:dev" //Not possible to pass build. CodeChickenLib for 1.7.10 is missing on ChickenBone's maven.
+    compile "codechicken:NotEnoughItems:1.7.10-1.0.5.120:dev"
+    compile "mcp.mobius.waila:Waila:1.5.11-RC2-NONEI_1.7.10"
 }
 
 sourceSets {
-   main {
-     java {
-       srcDirs = [ 'src/Common' , 'src/API' , 'src/ASM' ]
-	   exclude '**/Resources/'
-     }
-	 resources {
-       srcDirs = [ 'src/Resources' ]
-	   exclude '**/API'
-	   exclude '**/ASM'
-	   exclude '**/Common'
-     }
-   }
- }
- //Creates a compiled de-obfuscated jar
+    main {
+        java {
+            srcDirs = [ 'src/Common' , 'src/API' , 'src/ASM' ]
+            exclude '**/Resources/'
+        }
+        resources {
+            srcDirs = [ 'src/Resources' ]
+	    exclude '**/API'
+            exclude '**/ASM'
+            exclude '**/Common'
+        }
+    }
+}
+
+//Creates a compiled de-obfuscated jar
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     appendix = 'deobf'
 	
-	manifest.attributes(
+    manifest.attributes(
             'FMLCorePlugin': 'com.bioxx.tfc.TFCASMLoadingPlugin',
-			'FMLCorePluginContainsFMLMod': 'true',
-			'FMLAT': 'tfc_at.cfg'
+	    'FMLCorePluginContainsFMLMod': 'true',
+            'FMLAT': 'tfc_at.cfg'
     )
 }
  //creates a jar containing only the src
@@ -97,8 +98,8 @@ task sourceJar(type: Jar) {
 tasks.build.dependsOn('sourceJar', 'deobfJar')
 
 processResources {
-//First we just copy in the mcmod.info file
-from(sourceSets.main.resources.srcDirs) {
+    //First we just copy in the mcmod.info file
+    from(sourceSets.main.resources.srcDirs) {
         include '**/*.info'
         include '**/*.prop'
 
@@ -108,7 +109,7 @@ from(sourceSets.main.resources.srcDirs) {
             'minecraft_version': project.config.minecraft_version,
         ])
     }
-     // copy everything else, thats we didnt do before
+    // copy everything else, thats we didnt do before
     from(sourceSets.main.resources.srcDirs) {
         exclude '**/*.info'
         exclude '**/*.prop'
@@ -118,11 +119,8 @@ from(sourceSets.main.resources.srcDirs) {
 jar {
     manifest.attributes(
             'FMLCorePlugin': 'com.bioxx.tfc.TFCASMLoadingPlugin',
-			'FMLCorePluginContainsFMLMod': 'true',
-			'FMLAT': 'tfc_at.cfg'
+            'FMLCorePluginContainsFMLMod': 'true',
+            'FMLAT': 'tfc_at.cfg'
     )
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
-}
